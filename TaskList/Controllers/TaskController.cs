@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Policy;
 using System.Threading.Tasks;
 using TaskList.Models;
 using TaskList.Requests;
@@ -60,6 +61,36 @@ namespace TaskList.Controllers
                 response.IsCompleted = task.IsCompleted;
                 return response;
             }
+
+            [HttpPut]
+            [Route("PutTask")]
+            public string PutTask([FromBody] PutTaskRequest message)
+            {
+                var update = db.Tasks.FirstOrDefault(x => x.Id == message.Id);
+                {
+                    if (update != null)
+                    {
+                        /*
+                        update.Text = message.Text;
+                        update.Date = message.Date;
+                        */
+                        update.IsCompleted = message.IsCompleted;
+                        db.SaveChanges();
+                    }
+                    else
+                    {
+                        {
+                            return "Not found";
+                        }
+                    }
+                }
+                return "Updated, Success!";
+            }
+            /*
+            [HttpDelete]
+            [Route("DeleteTask")]
+            public
+            */
           
     }
 }
