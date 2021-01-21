@@ -33,6 +33,33 @@ namespace TaskList.Controllers
                     IsCompleted = x.IsCompleted,
                 }).ToList();
             }
+
+            [HttpPost]
+            [Route("PostTask")]
+            public string PostTask([FromBody] PostTaskRequest message)
+            {
+                db.Tasks.Add(new Task1
+                {
+                    Text = message.Text,
+                    Date = message.Date,
+                    IsCompleted = message.IsCompleted,
+                });
+                db.SaveChanges();
+                return "Posted";
+
+            }
+
+            [HttpGet]
+            [Route("GetTask")]
+            public GetTaskResponse GetTask([FromBody] GetTaskRequest message)
+            {
+                var task = db.Tasks.FirstOrDefault(x => x.Id == message.Id);
+                var response = new GetTaskResponse();
+                response.Text = task.Text;
+                response.Date = task.Date;
+                response.IsCompleted = task.IsCompleted;
+                return response;
+            }
           
     }
 }

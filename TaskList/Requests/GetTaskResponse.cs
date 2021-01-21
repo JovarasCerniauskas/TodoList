@@ -3,18 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace TaskList.Models
+namespace TaskList.Requests
 {
-    public class Task1
-    {
-        public int Id { get; set; }
-        
+    public class GetTaskResponse
+    { 
+
         public string Text { get; set; }
 
         public DateTime Date { get; set; }
 
         public bool IsCompleted { get; set; }
-
     }
-    //Something
 }
