@@ -27,8 +27,8 @@ namespace TaskList
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
-            services.AddControllers();
+
+            services.AddControllers().AddNewtonsoftJson();
             services.AddDbContext<TaskDBContext>(options => {
                 options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=PLZ_work;Integrated Security=True;", options => options.EnableRetryOnFailure());
             });

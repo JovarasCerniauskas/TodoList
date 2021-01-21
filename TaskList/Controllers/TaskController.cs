@@ -7,6 +7,7 @@ using System.Security.Policy;
 using System.Threading.Tasks;
 using TaskList.Models;
 using TaskList.Requests;
+using System.Text.Json;
 
 namespace TaskList.Controllers
 {
@@ -63,11 +64,11 @@ namespace TaskList.Controllers
             }
 
             [HttpPut]
-            [Route("PutTask")]
-            public string PutTask([FromBody] PutTaskRequest message)
+            [Route("PutTaskIsCompleted")]
+            public string PutTaskIsCompleted([FromBody] PutTaskRequest message)
             {
                 var update = db.Tasks.FirstOrDefault(x => x.Id == message.Id);
-                {
+                
                     if (update != null)
                     {
                         /*
@@ -83,14 +84,33 @@ namespace TaskList.Controllers
                             return "Not found";
                         }
                     }
-                }
+                
                 return "Updated, Success!";
             }
-            /*
+            
+
             [HttpDelete]
             [Route("DeleteTask")]
-            public
-            */
-          
+            public string DeleteTask([FromBody]  DeleteTaskRequest taskId)
+            {
+
+                
+                    /*
+                    var task = db.Tasks.Where(s => s.Id == id);
+                    db.Tasks.Remove(task);
+                    */
+                    var task = db.Tasks.Single(x => x.Id == taskId.Id);
+                    db.Tasks.Remove(task);
+                    db.SaveChanges();
+
+
+               
+
+                return "Task deleted";
+
+            }
+        
+        
+        
     }
 }
