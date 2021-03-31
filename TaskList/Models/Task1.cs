@@ -16,5 +16,5 @@ namespace TaskList.Models
         public bool IsCompleted { get; set; }
 
     }
-    //Something
+    
 }

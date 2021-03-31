@@ -15,5 +15,6 @@ namespace TaskList.Models
 
         public DbSet<Task1> Tasks { get; set; }
         public IEnumerable<object> Task1 { get; internal set; }
+
     }
 }

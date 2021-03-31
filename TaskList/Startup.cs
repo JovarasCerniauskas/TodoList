@@ -12,11 +12,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using TaskList.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http;
 
 namespace TaskList
 {
     public class Startup
     {
+        readonly string MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -31,12 +34,36 @@ namespace TaskList
             services.AddControllers().AddNewtonsoftJson();
             services.AddDbContext<TaskDBContext>(options => {
                 options.UseSqlServer(@"Server=(localdb)\MSSQLLocalDB;Database=PLZ_work;Integrated Security=True;", options => options.EnableRetryOnFailure());
+
+
+                services.AddCors();
+                
+                services.AddCors(options =>
+                {
+                    options.AddPolicy("Policy1",
+                        builder =>
+                        {
+                            builder.WithOrigins("https://localhost:44381/",
+                                                "https://localhost:57051/")
+                                                .AllowAnyHeader()
+                                                .AllowAnyMethod();
+                        });
+
+                    options.AddPolicy("AnotherPolicy",
+                        builder =>
+                        {
+                            builder.WithOrigins("https://localhost:44381/")
+                                                .AllowAnyHeader()
+                                                .AllowAnyMethod();
+                        });
+                });
+                
             });
-            /*
+            
             String connectionString = Configuration.GetConnectionString("DefaultConnection");
             services.AddDbContext<TaskDBContext>(opt => opt.UseSqlServer(connectionString));
             services.AddControllers();
-            */
+            
 
         }
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -45,16 +72,38 @@ namespace TaskList
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            
+            app.UseCors();
+            app.UseCors(options => options.AllowAnyOrigin());  
+            
             app.UseHttpsRedirection();
 
             app.UseRouting();
+
+            app.UseCors(x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+
+
+                endpoints.MapGet("/echo",
+                context => context.Response.WriteAsync("echo"))
+                .RequireCors(MyAllowSpecificOrigins);
+
+                endpoints.MapControllers()
+                         .RequireCors(MyAllowSpecificOrigins);
+
+                endpoints.MapGet("/echo2",
+                    context => context.Response.WriteAsync("echo2"));
+
+                
+
+
+
+
+
             });
         }
     }

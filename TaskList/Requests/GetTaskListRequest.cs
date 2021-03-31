@@ -5,10 +5,8 @@ using System.Threading.Tasks;
 
 namespace TaskList.Requests
 {
-    public class PutTaskRequest
+    public class GetTaskListRequest
     {
-        public int Id { get; set; }
-
-
+        public bool IsCompleted { get; set; }
     }
 }

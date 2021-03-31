@@ -3,16 +3,20 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Security.Policy;
 using System.Threading.Tasks;
 using TaskList.Models;
 using TaskList.Requests;
 using System.Text.Json;
+using System.Web.Http;
+using Microsoft.AspNetCore.Cors;
 
 namespace TaskList.Controllers
 {
+   
     [ApiController]
-    [Route("api/TaskController")]
+    [Microsoft.AspNetCore.Mvc.Route("api/TaskController")]
     public class TaskController : ControllerBase
     {
 
@@ -23,11 +27,12 @@ namespace TaskList.Controllers
                 this.db = db;
             }
 
-            [HttpGet]
-            [Route("getTaskList")]
-            public List<GetTaskListResponse> getTaskLists()
+            [Microsoft.AspNetCore.Mvc.HttpGet]
+            [Microsoft.AspNetCore.Mvc.Route("getTaskList")]
+       
+        public List<GetTaskListResponse> GetTaskLists(bool IsCompleted)
             {
-                return db.Tasks.Select(x => new GetTaskListResponse
+                return db.Tasks.Where(s=>s.IsCompleted == IsCompleted).Select(x => new GetTaskListResponse
                 {
                     Id = x.Id,
                     Text = x.Text,
@@ -36,24 +41,26 @@ namespace TaskList.Controllers
                 }).ToList();
             }
 
-            [HttpPost]
-            [Route("PostTask")]
-            public string PostTask([FromBody] PostTaskRequest message)
+        [EnableCors("Policy1")]
+        [Microsoft.AspNetCore.Mvc.HttpPost]
+        [Microsoft.AspNetCore.Mvc.Route("PostTask")]
+        public object PostTask([Microsoft.AspNetCore.Mvc.FromBody] PostTaskRequest message)
+        {
+            var item = new Task1
             {
-                db.Tasks.Add(new Task1
-                {
-                    Text = message.Text,
-                    Date = message.Date,
-                    IsCompleted = message.IsCompleted,
-                });
+                Text = message.Text,
+                Date = message.Date,
+                IsCompleted = message.IsCompleted,
+            };
+                db.Tasks.Add(item);
                 db.SaveChanges();
-                return "Posted";
+            return item;
 
             }
 
-            [HttpGet]
-            [Route("GetTask")]
-            public GetTaskResponse GetTask([FromBody] GetTaskRequest message)
+            [Microsoft.AspNetCore.Mvc.HttpGet]
+            [Microsoft.AspNetCore.Mvc.Route("GetTask")]
+        public GetTaskResponse GetTask([Microsoft.AspNetCore.Mvc.FromBody] GetTaskRequest message)
             {
                 var task = db.Tasks.FirstOrDefault(x => x.Id == message.Id);
                 var response = new GetTaskResponse();
@@ -63,19 +70,15 @@ namespace TaskList.Controllers
                 return response;
             }
 
-            [HttpPut]
-            [Route("PutTaskIsCompleted")]
-            public string PutTaskIsCompleted([FromBody] PutTaskRequest message)
+            [Microsoft.AspNetCore.Mvc.HttpPut]
+            [Microsoft.AspNetCore.Mvc.Route("PutTaskIsCompleted")]
+        public string PutTaskIsCompleted([Microsoft.AspNetCore.Mvc.FromBody] PutTaskRequest message)
             {
-                var update = db.Tasks.FirstOrDefault(x => x.Id == message.Id);
+                var task = db.Tasks.FirstOrDefault(x => x.Id == message.Id);
                 
-                    if (update != null)
+                    if (task != null)
                     {
-                        /*
-                        update.Text = message.Text;
-                        update.Date = message.Date;
-                        */
-                        update.IsCompleted = message.IsCompleted;
+                        task.IsCompleted = true;
                         db.SaveChanges();
                     }
                     else
@@ -89,9 +92,11 @@ namespace TaskList.Controllers
             }
             
 
-            [HttpDelete]
-            [Route("DeleteTask")]
-            public string DeleteTask([FromBody]  DeleteTaskRequest taskId)
+            [Microsoft.AspNetCore.Mvc.HttpDelete]
+            
+            [Microsoft.AspNetCore.Mvc.Route("DeleteTask")]
+       
+        public string DeleteTask([Microsoft.AspNetCore.Mvc.FromBody]  DeleteTaskRequest taskId)
             {
 
                 
@@ -110,7 +115,6 @@ namespace TaskList.Controllers
 
             }
         
-        
-        
+
     }
 }
